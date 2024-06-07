@@ -1,0 +1,21 @@
+name: Test
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  pr-commented:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.issue.pull_request && github.event.issue.user.login == github.event.comment.user.login && startsWith(github.event.comment.body, '/changelog-entry ') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Checkout Pull Request
+        run: gh pr checkout ${{ github.event.issue.number }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Test secrets
+        run: echo "${{ secrets.TEST_SECRET }}"
